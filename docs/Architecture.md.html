@@ -1,0 +1,672 @@
+
+<style>
+  *{box-sizing:border-box;margin:0;padding:0}
+  :root{--navy:#1E3A5F;--teal:#2E86AB;--plum:#7C3AED;--green:#16A34A;--amber:#D97706;--red:#DC2626;--slate:#64748B}
+  body{font-family:var(--font-sans)}
+  h2.sr-only{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap}
+
+  .page{padding:1.5rem 0}
+  .nav{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:1.5rem}
+  .nav button{font-size:12px;padding:5px 12px;border-radius:20px;border:0.5px solid var(--color-border-secondary);background:transparent;color:var(--color-text-secondary);cursor:pointer;transition:all .15s}
+  .nav button.active{background:var(--navy);color:#fff;border-color:var(--navy)}
+
+  .section{display:none}
+  .section.active{display:block}
+
+  /* Hero banner */
+  .hero{background:var(--navy);border-radius:var(--border-radius-lg);padding:1.5rem 1.75rem;margin-bottom:1.5rem;color:#fff}
+  .hero-title{font-size:22px;font-weight:500;letter-spacing:-.3px;margin-bottom:4px}
+  .hero-sub{font-size:13px;opacity:.7}
+  .hero-tags{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+  .tag{font-size:11px;padding:3px 10px;border-radius:12px;background:rgba(255,255,255,.12);color:rgba(255,255,255,.9)}
+
+  /* Stack cards */
+  .cards{display:grid;gap:10px}
+  .cards-3{grid-template-columns:repeat(auto-fit,minmax(200px,1fr))}
+  .card{background:var(--color-background-primary);border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-lg);padding:1rem 1.1rem;cursor:pointer;transition:border-color .15s}
+  .card:hover{border-color:var(--color-border-secondary)}
+  .card-head{display:flex;align-items:center;gap:10px;margin-bottom:8px}
+  .icon{width:32px;height:32px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:15px;flex-shrink:0}
+  .icon-navy{background:rgba(30,58,95,.12);color:var(--navy)}
+  .icon-teal{background:rgba(46,134,171,.12);color:var(--teal)}
+  .icon-plum{background:rgba(124,58,237,.12);color:var(--plum)}
+  .icon-green{background:rgba(22,163,74,.12);color:var(--green)}
+  .icon-amber{background:rgba(217,119,6,.12);color:var(--amber)}
+  .icon-red{background:rgba(220,38,38,.12);color:var(--red)}
+  .card-title{font-size:14px;font-weight:500;color:var(--color-text-primary)}
+  .card-sub{font-size:12px;color:var(--color-text-secondary);line-height:1.5}
+  .badge{font-size:10px;padding:2px 8px;border-radius:10px;font-weight:500;margin-left:auto;flex-shrink:0}
+  .badge-green{background:rgba(22,163,74,.12);color:var(--green)}
+  .badge-amber{background:rgba(217,119,6,.12);color:var(--amber)}
+  .badge-teal{background:rgba(46,134,171,.12);color:var(--teal)}
+  .badge-plum{background:rgba(124,58,237,.12);color:var(--plum)}
+  .badge-red{background:rgba(220,38,38,.12);color:var(--red)}
+
+  /* Section heading */
+  .sh{font-size:13px;font-weight:500;color:var(--color-text-secondary);text-transform:uppercase;letter-spacing:.06em;margin-bottom:10px;margin-top:1.2rem}
+  .sh:first-of-type{margin-top:0}
+
+  /* folder tree */
+  .tree{background:var(--color-background-secondary);border-radius:var(--border-radius-md);padding:.75rem 1rem;font-size:12px;font-family:var(--font-mono);line-height:1.9;color:var(--color-text-primary)}
+  .tree .dir{color:var(--teal);font-weight:500}
+  .tree .file{color:var(--color-text-secondary)}
+  .tree .comment{color:var(--color-text-tertiary)}
+
+  /* code block */
+  .code{background:var(--color-background-secondary);border-radius:var(--border-radius-md);padding:.75rem 1rem;font-size:12px;font-family:var(--font-mono);line-height:1.8;overflow-x:auto;color:var(--color-text-primary)}
+  .kw{color:var(--plum)}
+  .str{color:var(--green)}
+  .fn{color:var(--teal)}
+  .cm{color:var(--color-text-tertiary)}
+
+  /* route table */
+  .rtable{width:100%;border-collapse:collapse;font-size:12px}
+  .rtable th{text-align:left;font-size:11px;font-weight:500;color:var(--color-text-secondary);text-transform:uppercase;letter-spacing:.04em;padding:6px 10px;border-bottom:0.5px solid var(--color-border-tertiary)}
+  .rtable td{padding:7px 10px;border-bottom:0.5px solid var(--color-border-tertiary);color:var(--color-text-primary);vertical-align:top}
+  .rtable tr:last-child td{border-bottom:none}
+  .rtable tr:hover td{background:var(--color-background-secondary)}
+  .method{font-family:var(--font-mono);font-size:11px;font-weight:500;padding:2px 7px;border-radius:4px}
+  .get{background:rgba(22,163,74,.1);color:var(--green)}
+  .post{background:rgba(46,134,171,.1);color:var(--teal)}
+  .put{background:rgba(217,119,6,.1);color:var(--amber)}
+  .delete{background:rgba(220,38,38,.1);color:var(--red)}
+  .patch{background:rgba(124,58,237,.1);color:var(--plum)}
+
+  /* flow steps */
+  .flow{display:flex;flex-direction:column;gap:0}
+  .flow-step{display:flex;gap:12px;padding:10px 0}
+  .flow-left{display:flex;flex-direction:column;align-items:center}
+  .flow-num{width:24px;height:24px;border-radius:50%;background:var(--navy);color:#fff;font-size:11px;font-weight:500;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+  .flow-line{width:1px;flex:1;background:var(--color-border-tertiary);margin-top:4px}
+  .flow-step:last-child .flow-line{display:none}
+  .flow-body{flex:1;padding-bottom:4px}
+  .flow-title{font-size:13px;font-weight:500;color:var(--color-text-primary);margin-bottom:2px}
+  .flow-desc{font-size:12px;color:var(--color-text-secondary);line-height:1.5}
+
+  /* schema */
+  .schema-table{width:100%;border-collapse:collapse;font-size:12px;margin-bottom:10px}
+  .schema-table th{font-size:11px;font-weight:500;text-align:left;padding:5px 8px;background:var(--color-background-secondary);color:var(--color-text-secondary)}
+  .schema-table td{padding:5px 8px;border-bottom:0.5px solid var(--color-border-tertiary);font-family:var(--font-mono);font-size:11px;vertical-align:top}
+  .schema-table tr:last-child td{border-bottom:none}
+  .type{color:var(--teal)}
+  .pk{color:var(--amber);font-size:10px;font-weight:500}
+  .ref{color:var(--plum);font-size:10px;font-weight:500}
+  .schema-name{font-size:13px;font-weight:500;color:var(--color-text-primary);margin-bottom:6px;display:flex;align-items:center;gap:8px}
+
+  /* checklist */
+  .check{display:flex;align-items:flex-start;gap:8px;padding:5px 0;font-size:13px;color:var(--color-text-primary)}
+  .check .ci{color:var(--green);flex-shrink:0;margin-top:1px}
+  .check .cx{color:var(--red);flex-shrink:0;margin-top:1px}
+
+  /* info box */
+  .info{background:var(--color-background-secondary);border-left:3px solid var(--teal);border-radius:0 var(--border-radius-md) var(--border-radius-md) 0;padding:.65rem .9rem;font-size:12px;color:var(--color-text-secondary);line-height:1.6;margin:10px 0}
+  .info strong{color:var(--color-text-primary);display:block;margin-bottom:2px;font-size:13px}
+
+  /* pill row */
+  .pills{display:flex;flex-wrap:wrap;gap:6px;margin:8px 0}
+  .pill{font-size:11px;padding:3px 10px;border-radius:12px;border:0.5px solid var(--color-border-tertiary);color:var(--color-text-secondary)}
+  .pill-active{border-color:var(--navy);color:var(--navy);font-weight:500;background:rgba(30,58,95,.06)}
+</style>
+
+<h2 class="sr-only">InterviewAce AI — Simplified V1 Architecture for solo BCA student using React, Node.js, MongoDB Atlas, JWT, and Gemini API</h2>
+
+<div class="page">
+  <div class="hero">
+    <div class="hero-title">InterviewAce AI — V1 Architecture</div>
+    <div class="hero-sub">Simplified solo-developer blueprint · React + Node/Express + MongoDB Atlas + Gemini API + JWT</div>
+    <div class="hero-tags">
+      <span class="tag">No microservices</span>
+      <span class="tag">Monolith REST API</span>
+      <span class="tag">Single developer</span>
+      <span class="tag">Free tier friendly</span>
+      <span class="tag">12 core modules</span>
+    </div>
+  </div>
+
+  <div class="nav" role="tablist">
+    <button class="active" onclick="show('overview')" role="tab">Overview</button>
+    <button onclick="show('stack')" role="tab">Tech Stack</button>
+    <button onclick="show('structure')" role="tab">Folder Structure</button>
+    <button onclick="show('routes')" role="tab">API Routes</button>
+    <button onclick="show('schema')" role="tab">DB Schema</button>
+    <button onclick="show('gemini')" role="tab">Gemini AI</button>
+    <button onclick="show('auth')" role="tab">Auth Flow</button>
+    <button onclick="show('deploy')" role="tab">Deployment</button>
+    <button onclick="show('checklist')" role="tab">Dev Checklist</button>
+  </div>
+
+  <!-- OVERVIEW -->
+  <div id="s-overview" class="section active">
+    <div class="sh">Architecture at a glance</div>
+    <div class="info"><strong>Design Philosophy</strong>One server, one database, one AI provider. Everything lives in a single Express app with clearly separated route modules. The React frontend talks only to your own backend — never directly to MongoDB or Gemini.</div>
+
+    <div class="cards cards-3" style="margin-top:12px">
+      <div class="card" onclick="show('stack')">
+        <div class="card-head"><div class="icon icon-teal"><i class="ti ti-layers" aria-hidden="true"></i></div><span class="card-title">3-Layer Stack</span><span class="badge badge-teal">Simple</span></div>
+        <div class="card-sub">React SPA → Express REST API → MongoDB Atlas. Clean separation with no extra infrastructure.</div>
+      </div>
+      <div class="card" onclick="show('routes')">
+        <div class="card-head"><div class="icon icon-navy"><i class="ti ti-route" aria-hidden="true"></i></div><span class="card-title">12 Route Modules</span><span class="badge badge-green">Modular</span></div>
+        <div class="card-sub">auth, profile, resume, interview, questions, coding, tracker, company, roadmap, analytics, admin, notifications.</div>
+      </div>
+      <div class="card" onclick="show('schema')">
+        <div class="card-head"><div class="icon icon-green"><i class="ti ti-database" aria-hidden="true"></i></div><span class="card-title">8 Mongo Collections</span><span class="badge badge-green">Atlas Free</span></div>
+        <div class="card-sub">Users, Resumes, Interviews, Questions, Applications, Companies, Roadmaps, Notifications.</div>
+      </div>
+      <div class="card" onclick="show('gemini')">
+        <div class="card-head"><div class="icon icon-plum"><i class="ti ti-brain" aria-hidden="true"></i></div><span class="card-title">Gemini 1.5 Flash</span><span class="badge badge-plum">AI Core</span></div>
+        <div class="card-sub">Resume analysis, ATS scoring, mock interview Q&A, roadmap generation. All via one SDK.</div>
+      </div>
+      <div class="card" onclick="show('auth')">
+        <div class="card-head"><div class="icon icon-amber"><i class="ti ti-shield-lock" aria-hidden="true"></i></div><span class="card-title">JWT + bcrypt</span><span class="badge badge-amber">Secure</span></div>
+        <div class="card-sub">Stateless auth with access + refresh token pair. Middleware protects all private routes.</div>
+      </div>
+      <div class="card" onclick="show('deploy')">
+        <div class="card-head"><div class="icon icon-red"><i class="ti ti-rocket" aria-hidden="true"></i></div><span class="card-title">Free Deployment</span><span class="badge badge-red">₹0 infra</span></div>
+        <div class="card-sub">Frontend → Vercel. Backend → Render. Database → MongoDB Atlas. All free tiers.</div>
+      </div>
+    </div>
+
+    <div class="sh" style="margin-top:1.5rem">Data flow (request lifecycle)</div>
+    <div class="flow">
+      <div class="flow-step">
+        <div class="flow-left"><div class="flow-num">1</div><div class="flow-line"></div></div>
+        <div class="flow-body"><div class="flow-title">User action in React (browser)</div><div class="flow-desc">User clicks "Analyze Resume". React sends <code>POST /api/resume/analyze</code> with Authorization: Bearer &lt;accessToken&gt; and FormData (PDF file).</div></div>
+      </div>
+      <div class="flow-step">
+        <div class="flow-left"><div class="flow-num">2</div><div class="flow-line"></div></div>
+        <div class="flow-body"><div class="flow-title">Express middleware chain</div><div class="flow-desc">Request hits Express → cors() → express.json() → authMiddleware (verifies JWT, attaches req.user) → Multer (handles file upload to /tmp).</div></div>
+      </div>
+      <div class="flow-step">
+        <div class="flow-left"><div class="flow-num">3</div><div class="flow-line"></div></div>
+        <div class="flow-body"><div class="flow-title">Route handler (controller)</div><div class="flow-desc">resumeController.analyze() extracts text from PDF using pdf-parse, builds a structured prompt, calls geminiService.generateContent().</div></div>
+      </div>
+      <div class="flow-step">
+        <div class="flow-left"><div class="flow-num">4</div><div class="flow-line"></div></div>
+        <div class="flow-body"><div class="flow-title">Gemini API call</div><div class="flow-desc">geminiService sends the prompt to gemini-1.5-flash model. Receives structured JSON response with ATS score, keyword gaps, and suggestions.</div></div>
+      </div>
+      <div class="flow-step">
+        <div class="flow-left"><div class="flow-num">5</div><div class="flow-line"></div></div>
+        <div class="flow-body"><div class="flow-title">MongoDB save</div><div class="flow-desc">Result saved to resumes collection via Mongoose. Resume.create({ userId, atsScore, suggestions, analysisDate }).</div></div>
+      </div>
+      <div class="flow-step">
+        <div class="flow-left"><div class="flow-num">6</div><div class="flow-line"></div></div>
+        <div class="flow-body"><div class="flow-title">JSON response to React</div><div class="flow-desc">Express sends { success: true, data: { atsScore, suggestions, keywords } }. React updates state, renders the results card. Total time: ~8–15 seconds.</div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- TECH STACK -->
+  <div id="s-stack" class="section">
+    <div class="sh">Frontend</div>
+    <div class="cards cards-3">
+      <div class="card"><div class="card-head"><div class="icon icon-teal"><i class="ti ti-brand-react" aria-hidden="true"></i></div><span class="card-title">React 18</span><span class="badge badge-teal">UI</span></div><div class="card-sub">Vite build tool. React Router v6 for navigation. No Next.js — keeps it simple for a solo dev.</div></div>
+      <div class="card"><div class="card-head"><div class="icon icon-navy"><i class="ti ti-palette" aria-hidden="true"></i></div><span class="card-title">Tailwind CSS</span><span class="badge badge-teal">Styling</span></div><div class="card-sub">Utility-first CSS. Dark mode via class strategy. shadcn/ui for pre-built accessible components.</div></div>
+      <div class="card"><div class="card-head"><div class="icon icon-green"><i class="ti ti-refresh" aria-hidden="true"></i></div><span class="card-title">TanStack Query</span><span class="badge badge-green">State</span></div><div class="card-sub">Server state, caching, loading/error states. Zustand for global client state (auth, theme).</div></div>
+      <div class="card"><div class="card-head"><div class="icon icon-amber"><i class="ti ti-forms" aria-hidden="true"></i></div><span class="card-title">React Hook Form</span><span class="badge badge-amber">Forms</span></div><div class="card-sub">Zod schema validation. Handles all forms: login, profile, resume upload, tracker entries.</div></div>
+      <div class="card"><div class="card-head"><div class="icon icon-plum"><i class="ti ti-chart-bar" aria-hidden="true"></i></div><span class="card-title">Recharts</span><span class="badge badge-plum">Charts</span></div><div class="card-sub">Analytics dashboard. ATS score trend, interview performance radar, coding progress bars.</div></div>
+      <div class="card"><div class="card-head"><div class="icon icon-navy"><i class="ti ti-code" aria-hidden="true"></i></div><span class="card-title">Monaco Editor</span><span class="badge badge-teal">IDE</span></div><div class="card-sub">In-browser code editor for the Coding Practice module. Same engine as VS Code.</div></div>
+    </div>
+
+    <div class="sh">Backend</div>
+    <div class="cards cards-3">
+      <div class="card"><div class="card-head"><div class="icon icon-green"><i class="ti ti-brand-nodejs" aria-hidden="true"></i></div><span class="card-title">Node.js + Express</span><span class="badge badge-green">Server</span></div><div class="card-sub">Single monolithic Express app. All routes in one process. express-async-errors for clean error handling.</div></div>
+      <div class="card"><div class="card-head"><div class="icon icon-amber"><i class="ti ti-shield" aria-hidden="true"></i></div><span class="card-title">JWT + bcrypt</span><span class="badge badge-amber">Auth</span></div><div class="card-sub">jsonwebtoken for access/refresh tokens. bcryptjs (cost 10) for password hashing. No Passport.js needed.</div></div>
+      <div class="card"><div class="card-head"><div class="icon icon-navy"><i class="ti ti-upload" aria-hidden="true"></i></div><span class="card-title">Multer + pdf-parse</span><span class="badge badge-teal">Files</span></div><div class="card-sub">Multer handles multipart uploads to memory/disk. pdf-parse extracts text from uploaded resumes.</div></div>
+      <div class="card"><div class="card-head"><div class="icon icon-teal"><i class="ti ti-settings" aria-hidden="true"></i></div><span class="card-title">express-validator</span><span class="badge badge-teal">Validation</span></div><div class="card-sub">Input validation and sanitisation on all routes. Prevents injection and bad data.</div></div>
+      <div class="card"><div class="card-head"><div class="icon icon-plum"><i class="ti ti-mail" aria-hidden="true"></i></div><span class="card-title">Nodemailer</span><span class="badge badge-plum">Email</span></div><div class="card-sub">Email verification OTPs, password reset, and placement reminders via Gmail SMTP or Resend.</div></div>
+      <div class="card"><div class="card-head"><div class="icon icon-red"><i class="ti ti-clock" aria-hidden="true"></i></div><span class="card-title">node-cron</span><span class="badge badge-red">Jobs</span></div><div class="card-sub">Scheduled jobs: daily reminder emails, cleanup of expired tokens, streak calculation at midnight.</div></div>
+    </div>
+
+    <div class="sh">Database & AI</div>
+    <div class="cards cards-3">
+      <div class="card"><div class="card-head"><div class="icon icon-green"><i class="ti ti-database" aria-hidden="true"></i></div><span class="card-title">MongoDB Atlas</span><span class="badge badge-green">Free 512MB</span></div><div class="card-sub">Mongoose ODM for schema validation and queries. Atlas Search for company/question search. Atlas free tier is enough for MVP.</div></div>
+      <div class="card"><div class="card-head"><div class="icon icon-plum"><i class="ti ti-brain" aria-hidden="true"></i></div><span class="card-title">Gemini 1.5 Flash</span><span class="badge badge-plum">Free tier</span></div><div class="card-sub">@google/generative-ai SDK. Flash model is fast and free (15 RPM, 1M tokens/day). Use for all 5 AI features.</div></div>
+      <div class="card"><div class="card-head"><div class="icon icon-amber"><i class="ti ti-key" aria-hidden="true"></i></div><span class="card-title">dotenv</span><span class="badge badge-amber">Config</span></div><div class="card-sub">All secrets in .env: MONGO_URI, JWT_SECRET, GEMINI_API_KEY, EMAIL_PASS. Never commit .env to Git.</div></div>
+    </div>
+  </div>
+
+  <!-- FOLDER STRUCTURE -->
+  <div id="s-structure" class="section">
+    <div class="sh">Backend — /server</div>
+    <div class="tree">
+<span class="dir">server/</span>
+├── <span class="dir">config/</span>
+│   ├── <span class="file">db.js</span>          <span class="comment">— mongoose.connect()</span>
+│   └── <span class="file">gemini.js</span>      <span class="comment">— GoogleGenerativeAI init</span>
+├── <span class="dir">controllers/</span>    <span class="comment">— business logic</span>
+│   ├── <span class="file">authController.js</span>
+│   ├── <span class="file">profileController.js</span>
+│   ├── <span class="file">resumeController.js</span>
+│   ├── <span class="file">interviewController.js</span>
+│   ├── <span class="file">questionController.js</span>
+│   ├── <span class="file">codeController.js</span>
+│   ├── <span class="file">trackerController.js</span>
+│   ├── <span class="file">companyController.js</span>
+│   ├── <span class="file">roadmapController.js</span>
+│   ├── <span class="file">analyticsController.js</span>
+│   └── <span class="file">adminController.js</span>
+├── <span class="dir">middleware/</span>
+│   ├── <span class="file">auth.js</span>         <span class="comment">— verifyToken (JWT)</span>
+│   ├── <span class="file">isAdmin.js</span>      <span class="comment">— role check</span>
+│   ├── <span class="file">upload.js</span>       <span class="comment">— multer config</span>
+│   ├── <span class="file">validate.js</span>     <span class="comment">— express-validator</span>
+│   └── <span class="file">errorHandler.js</span> <span class="comment">— global error catch</span>
+├── <span class="dir">models/</span>         <span class="comment">— Mongoose schemas</span>
+│   ├── <span class="file">User.js</span>
+│   ├── <span class="file">Resume.js</span>
+│   ├── <span class="file">Interview.js</span>
+│   ├── <span class="file">Question.js</span>
+│   ├── <span class="file">Application.js</span>  <span class="comment">— placement tracker</span>
+│   ├── <span class="file">Company.js</span>
+│   ├── <span class="file">Roadmap.js</span>
+│   └── <span class="file">Notification.js</span>
+├── <span class="dir">routes/</span>
+│   ├── <span class="file">auth.js</span>  <span class="file">profile.js</span>  <span class="file">resume.js</span>
+│   ├── <span class="file">interview.js</span>  <span class="file">questions.js</span>
+│   ├── <span class="file">code.js</span>  <span class="file">tracker.js</span>  <span class="file">company.js</span>
+│   ├── <span class="file">roadmap.js</span>  <span class="file">analytics.js</span>  <span class="file">admin.js</span>
+│   └── <span class="file">index.js</span>       <span class="comment">— mounts all routes</span>
+├── <span class="dir">services/</span>
+│   ├── <span class="file">geminiService.js</span>  <span class="comment">— all AI calls</span>
+│   ├── <span class="file">emailService.js</span>   <span class="comment">— nodemailer</span>
+│   └── <span class="file">cronService.js</span>    <span class="comment">— node-cron jobs</span>
+├── <span class="dir">utils/</span>
+│   ├── <span class="file">generateToken.js</span>
+│   ├── <span class="file">pdfParser.js</span>
+│   └── <span class="file">apiResponse.js</span>   <span class="comment">— standard JSON shape</span>
+├── <span class="file">.env</span>              <span class="comment">— secrets (gitignored)</span>
+├── <span class="file">.env.example</span>
+└── <span class="file">server.js</span>         <span class="comment">— app entry point</span>
+    </div>
+
+    <div class="sh">Frontend — /client</div>
+    <div class="tree">
+<span class="dir">client/src/</span>
+├── <span class="dir">api/</span>              <span class="comment">— axios instance + API calls</span>
+│   ├── <span class="file">axiosInstance.js</span>  <span class="comment">— baseURL, interceptors</span>
+│   ├── <span class="file">auth.api.js</span>  <span class="file">resume.api.js</span>
+│   └── <span class="file">interview.api.js</span>  <span class="comment">→ one file per domain</span>
+├── <span class="dir">components/</span>       <span class="comment">— reusable UI components</span>
+│   ├── <span class="dir">ui/</span>            <span class="comment">— shadcn/ui wrappers</span>
+│   ├── <span class="file">Navbar.jsx</span>  <span class="file">Sidebar.jsx</span>
+│   ├── <span class="file">ATSScoreCard.jsx</span>
+│   ├── <span class="file">InterviewPlayer.jsx</span>
+│   ├── <span class="file">KanbanBoard.jsx</span>
+│   └── <span class="file">ProgressChart.jsx</span>
+├── <span class="dir">pages/</span>            <span class="comment">— one file = one route</span>
+│   ├── <span class="file">Login.jsx</span>  <span class="file">Register.jsx</span>
+│   ├── <span class="file">Dashboard.jsx</span>
+│   ├── <span class="file">Resume.jsx</span>  <span class="file">Interview.jsx</span>
+│   ├── <span class="file">CodingPractice.jsx</span>
+│   ├── <span class="file">PlacementTracker.jsx</span>
+│   ├── <span class="file">CompanyTracker.jsx</span>
+│   ├── <span class="file">Roadmap.jsx</span>
+│   ├── <span class="file">Analytics.jsx</span>
+│   └── <span class="file">Admin.jsx</span>
+├── <span class="dir">store/</span>            <span class="comment">— Zustand global state</span>
+│   ├── <span class="file">authStore.js</span>
+│   └── <span class="file">themeStore.js</span>
+├── <span class="dir">hooks/</span>            <span class="comment">— custom React hooks</span>
+│   ├── <span class="file">useAuth.js</span>
+│   └── <span class="file">useGeminiStream.js</span>
+└── <span class="file">main.jsx</span>          <span class="comment">— React Router root</span>
+    </div>
+
+    <div class="sh">server.js — entry point</div>
+    <div class="code"><span class="kw">const</span> express = <span class="fn">require</span>(<span class="str">'express'</span>);
+<span class="kw">const</span> cors = <span class="fn">require</span>(<span class="str">'cors'</span>);
+<span class="kw">const</span> { <span class="fn">connectDB</span> } = <span class="fn">require</span>(<span class="str">'./config/db'</span>);
+<span class="kw">const</span> routes = <span class="fn">require</span>(<span class="str">'./routes/index'</span>);
+<span class="kw">const</span> errorHandler = <span class="fn">require</span>(<span class="str">'./middleware/errorHandler'</span>);
+<span class="fn">require</span>(<span class="str">'express-async-errors'</span>); <span class="cm">// auto-catches async throws</span>
+<span class="fn">require</span>(<span class="str">'dotenv'</span>).<span class="fn">config</span>();
+
+<span class="kw">const</span> app = <span class="fn">express</span>();
+<span class="fn">connectDB</span>();
+
+app.<span class="fn">use</span>(<span class="fn">cors</span>({ origin: process.env.CLIENT_URL, credentials: <span class="kw">true</span> }));
+app.<span class="fn">use</span>(express.<span class="fn">json</span>({ limit: <span class="str">'10mb'</span> }));
+app.<span class="fn">use</span>(<span class="str">'/api'</span>, routes);
+app.<span class="fn">use</span>(errorHandler);
+
+app.<span class="fn">listen</span>(process.env.PORT || <span class="str">5000</span>);</div>
+  </div>
+
+  <!-- API ROUTES -->
+  <div id="s-routes" class="section">
+    <div class="info"><strong>Base URL pattern</strong>All routes prefixed with <code>/api</code>. Protected routes require <code>Authorization: Bearer &lt;token&gt;</code> header. Admin routes additionally require <code>role: 'admin'</code> in the JWT payload.</div>
+
+    <div class="sh">Authentication &amp; Profile</div>
+    <table class="rtable"><thead><tr><th>Method</th><th>Route</th><th>Auth</th><th>Description</th></tr></thead><tbody>
+      <tr><td><span class="method post">POST</span></td><td><code>/auth/register</code></td><td>—</td><td>Register, send OTP email</td></tr>
+      <tr><td><span class="method post">POST</span></td><td><code>/auth/verify-otp</code></td><td>—</td><td>Verify email OTP</td></tr>
+      <tr><td><span class="method post">POST</span></td><td><code>/auth/login</code></td><td>—</td><td>Returns accessToken + refreshToken</td></tr>
+      <tr><td><span class="method post">POST</span></td><td><code>/auth/refresh</code></td><td>—</td><td>Get new accessToken using refreshToken</td></tr>
+      <tr><td><span class="method post">POST</span></td><td><code>/auth/logout</code></td><td>✓</td><td>Invalidate refreshToken</td></tr>
+      <tr><td><span class="method post">POST</span></td><td><code>/auth/forgot-password</code></td><td>—</td><td>Send reset link via email</td></tr>
+      <tr><td><span class="method get">GET</span></td><td><code>/profile/me</code></td><td>✓</td><td>Get own profile</td></tr>
+      <tr><td><span class="method put">PUT</span></td><td><code>/profile/me</code></td><td>✓</td><td>Update profile fields</td></tr>
+      <tr><td><span class="method post">POST</span></td><td><code>/profile/skills</code></td><td>✓</td><td>Add/update skills array</td></tr>
+    </tbody></table>
+
+    <div class="sh">Resume &amp; AI Analysis</div>
+    <table class="rtable"><thead><tr><th>Method</th><th>Route</th><th>Auth</th><th>Description</th></tr></thead><tbody>
+      <tr><td><span class="method post">POST</span></td><td><code>/resume/upload</code></td><td>✓</td><td>Upload PDF (Multer), store raw text</td></tr>
+      <tr><td><span class="method post">POST</span></td><td><code>/resume/analyze</code></td><td>✓</td><td>Gemini ATS analysis, returns score + suggestions</td></tr>
+      <tr><td><span class="method post">POST</span></td><td><code>/resume/keyword-gap</code></td><td>✓</td><td>Compare resume vs pasted JD</td></tr>
+      <tr><td><span class="method get">GET</span></td><td><code>/resume/history</code></td><td>✓</td><td>All resume versions for user</td></tr>
+      <tr><td><span class="method get">GET</span></td><td><code>/resume/:id</code></td><td>✓</td><td>Single resume result</td></tr>
+    </tbody></table>
+
+    <div class="sh">Mock Interview</div>
+    <table class="rtable"><thead><tr><th>Method</th><th>Route</th><th>Auth</th><th>Description</th></tr></thead><tbody>
+      <tr><td><span class="method post">POST</span></td><td><code>/interview/start</code></td><td>✓</td><td>Create session, Gemini returns first Q</td></tr>
+      <tr><td><span class="method post">POST</span></td><td><code>/interview/:id/answer</code></td><td>✓</td><td>Submit answer, get AI feedback + next Q</td></tr>
+      <tr><td><span class="method post">POST</span></td><td><code>/interview/:id/end</code></td><td>✓</td><td>Finish session, generate full report</td></tr>
+      <tr><td><span class="method get">GET</span></td><td><code>/interview/sessions</code></td><td>✓</td><td>All past sessions</td></tr>
+      <tr><td><span class="method get">GET</span></td><td><code>/interview/:id/report</code></td><td>✓</td><td>Detailed report for one session</td></tr>
+    </tbody></table>
+
+    <div class="sh">Questions, Coding, Tracker, Roadmap</div>
+    <table class="rtable"><thead><tr><th>Method</th><th>Route</th><th>Auth</th><th>Description</th></tr></thead><tbody>
+      <tr><td><span class="method get">GET</span></td><td><code>/questions</code></td><td>✓</td><td>Paginated Q&amp;A bank (filter: topic, difficulty, company)</td></tr>
+      <tr><td><span class="method post">POST</span></td><td><code>/questions/:id/bookmark</code></td><td>✓</td><td>Toggle bookmark</td></tr>
+      <tr><td><span class="method post">POST</span></td><td><code>/code/submit</code></td><td>✓</td><td>Run code via Judge0 API, return result</td></tr>
+      <tr><td><span class="method get">GET</span></td><td><code>/code/problems</code></td><td>✓</td><td>Coding problems (filter: company, topic, difficulty)</td></tr>
+      <tr><td><span class="method get">GET</span></td><td><code>/tracker/applications</code></td><td>✓</td><td>All job applications for user</td></tr>
+      <tr><td><span class="method post">POST</span></td><td><code>/tracker/applications</code></td><td>✓</td><td>Add new application entry</td></tr>
+      <tr><td><span class="method put">PUT</span></td><td><code>/tracker/applications/:id</code></td><td>✓</td><td>Update status / move kanban stage</td></tr>
+      <tr><td><span class="method delete">DEL</span></td><td><code>/tracker/applications/:id</code></td><td>✓</td><td>Delete application</td></tr>
+      <tr><td><span class="method post">POST</span></td><td><code>/roadmap/generate</code></td><td>✓</td><td>Gemini generates weekly study plan for target role</td></tr>
+      <tr><td><span class="method get">GET</span></td><td><code>/roadmap/my</code></td><td>✓</td><td>User's current roadmap</td></tr>
+      <tr><td><span class="method get">GET</span></td><td><code>/analytics/dashboard</code></td><td>✓</td><td>Aggregated stats: ATS trend, interview scores, streaks</td></tr>
+      <tr><td><span class="method get">GET</span></td><td><code>/admin/users</code></td><td>Admin</td><td>All users (paginated)</td></tr>
+      <tr><td><span class="method patch">PATCH</span></td><td><code>/admin/users/:id</code></td><td>Admin</td><td>Update role or status</td></tr>
+    </tbody></table>
+  </div>
+
+  <!-- DB SCHEMA -->
+  <div id="s-schema" class="section">
+    <div class="info"><strong>Schema strategy</strong>All collections use Mongoose. Relationships use ObjectId references (not embedding), except for small nested arrays (skills, bookmarks). Timestamps: true on every schema.</div>
+
+    <div class="sh">Users collection</div>
+    <div class="schema-name"><i class="ti ti-user" aria-hidden="true" style="color:var(--teal)"></i> User.js</div>
+    <table class="schema-table"><thead><tr><th>Field</th><th>Type</th><th>Notes</th></tr></thead><tbody>
+      <tr><td>_id</td><td><span class="type">ObjectId</span></td><td><span class="pk">PK</span> auto</td></tr>
+      <tr><td>name</td><td><span class="type">String</span></td><td>required, trim</td></tr>
+      <tr><td>email</td><td><span class="type">String</span></td><td>unique, lowercase</td></tr>
+      <tr><td>password</td><td><span class="type">String</span></td><td>bcrypt hash</td></tr>
+      <tr><td>role</td><td><span class="type">String</span></td><td>enum: student | admin</td></tr>
+      <tr><td>isVerified</td><td><span class="type">Boolean</span></td><td>default: false</td></tr>
+      <tr><td>otp, otpExpiry</td><td><span class="type">String, Date</span></td><td>email verification</td></tr>
+      <tr><td>refreshToken</td><td><span class="type">String</span></td><td>hashed, server-side</td></tr>
+      <tr><td>college, branch, graduationYear, cgpa</td><td><span class="type">String/Number</span></td><td>academic info</td></tr>
+      <tr><td>skills</td><td><span class="type">[{name, level}]</span></td><td>embedded array</td></tr>
+      <tr><td>targetRole</td><td><span class="type">String</span></td><td>for roadmap</td></tr>
+      <tr><td>bookmarkedQuestions</td><td><span class="type">[ObjectId]</span></td><td><span class="ref">→ Question</span></td></tr>
+      <tr><td>streak, lastActiveDate</td><td><span class="type">Number, Date</span></td><td>gamification</td></tr>
+      <tr><td>theme</td><td><span class="type">String</span></td><td>light | dark</td></tr>
+    </tbody></table>
+
+    <div class="sh">Resume collection</div>
+    <div class="schema-name"><i class="ti ti-file-text" aria-hidden="true" style="color:var(--green)"></i> Resume.js</div>
+    <table class="schema-table"><thead><tr><th>Field</th><th>Type</th><th>Notes</th></tr></thead><tbody>
+      <tr><td>userId</td><td><span class="type">ObjectId</span></td><td><span class="ref">→ User</span> required</td></tr>
+      <tr><td>rawText</td><td><span class="type">String</span></td><td>extracted PDF text</td></tr>
+      <tr><td>atsScore</td><td><span class="type">Number</span></td><td>0–100</td></tr>
+      <tr><td>breakdown</td><td><span class="type">Object</span></td><td>{formatting, keywords, impact, length}</td></tr>
+      <tr><td>suggestions</td><td><span class="type">[String]</span></td><td>AI rewrite tips</td></tr>
+      <tr><td>keywordGaps</td><td><span class="type">[String]</span></td><td>missing keywords vs JD</td></tr>
+      <tr><td>jdText</td><td><span class="type">String</span></td><td>job description if provided</td></tr>
+      <tr><td>version</td><td><span class="type">Number</span></td><td>auto-incremented</td></tr>
+    </tbody></table>
+
+    <div class="sh">Interview collection</div>
+    <div class="schema-name"><i class="ti ti-microphone" aria-hidden="true" style="color:var(--plum)"></i> Interview.js</div>
+    <table class="schema-table"><thead><tr><th>Field</th><th>Type</th><th>Notes</th></tr></thead><tbody>
+      <tr><td>userId</td><td><span class="type">ObjectId</span></td><td><span class="ref">→ User</span></td></tr>
+      <tr><td>type</td><td><span class="type">String</span></td><td>enum: HR | Technical | Mixed</td></tr>
+      <tr><td>targetRole</td><td><span class="type">String</span></td><td>e.g. SDE, Data Analyst</td></tr>
+      <tr><td>exchanges</td><td><span class="type">[{question, answer, aiScore, feedback}]</span></td><td>Q&amp;A pairs</td></tr>
+      <tr><td>overallScore</td><td><span class="type">Number</span></td><td>0–100, computed at end</td></tr>
+      <tr><td>report</td><td><span class="type">Object</span></td><td>{strengths, weaknesses, tips}</td></tr>
+      <tr><td>status</td><td><span class="type">String</span></td><td>in-progress | completed</td></tr>
+      <tr><td>duration</td><td><span class="type">Number</span></td><td>minutes</td></tr>
+    </tbody></table>
+
+    <div class="sh">Application (Placement Tracker) collection</div>
+    <div class="schema-name"><i class="ti ti-briefcase" aria-hidden="true" style="color:var(--amber)"></i> Application.js</div>
+    <table class="schema-table"><thead><tr><th>Field</th><th>Type</th><th>Notes</th></tr></thead><tbody>
+      <tr><td>userId</td><td><span class="type">ObjectId</span></td><td><span class="ref">→ User</span></td></tr>
+      <tr><td>companyName</td><td><span class="type">String</span></td><td>required</td></tr>
+      <tr><td>role</td><td><span class="type">String</span></td><td>job title</td></tr>
+      <tr><td>status</td><td><span class="type">String</span></td><td>applied | test_scheduled | test_cleared | interview_scheduled | offered | rejected</td></tr>
+      <tr><td>testDate, interviewDate</td><td><span class="type">Date</span></td><td>reminder trigger fields</td></tr>
+      <tr><td>salary</td><td><span class="type">Number</span></td><td>CTC in LPA</td></tr>
+      <tr><td>notes</td><td><span class="type">String</span></td><td>free text</td></tr>
+      <tr><td>jdUrl</td><td><span class="type">String</span></td><td>link to JD</td></tr>
+    </tbody></table>
+  </div>
+
+  <!-- GEMINI AI -->
+  <div id="s-gemini" class="section">
+    <div class="info"><strong>SDK Setup</strong>Use <code>@google/generative-ai</code> npm package. Gemini 1.5 Flash is free: 15 requests/minute, 1 million tokens/day. More than enough for a student project.</div>
+
+    <div class="sh">geminiService.js — central AI file</div>
+    <div class="code"><span class="kw">const</span> { GoogleGenerativeAI } = <span class="fn">require</span>(<span class="str">'@google/generative-ai'</span>);
+<span class="kw">const</span> genAI = <span class="kw">new</span> <span class="fn">GoogleGenerativeAI</span>(process.env.GEMINI_API_KEY);
+<span class="kw">const</span> model = genAI.<span class="fn">getGenerativeModel</span>({ model: <span class="str">'gemini-1.5-flash'</span> });
+
+<span class="cm">// 1. ATS Resume Analysis</span>
+<span class="kw">async function</span> <span class="fn">analyzeResume</span>(resumeText, jobDescription) {
+  <span class="kw">const</span> prompt = <span class="str">`You are an expert ATS system. Analyze the resume below and
+  return ONLY a JSON object with this exact structure (no markdown):
+  {
+    "atsScore": number (0-100),
+    "breakdown": { "formatting": number, "keywords": number, "impact": number },
+    "suggestions": [string, string, string],
+    "keywordGaps": [string, string]
+  }
+  Resume: ${resumeText}
+  ${jobDescription ? "Job Description: " + jobDescription : ""}`</span>;
+  <span class="kw">const</span> result = <span class="kw">await</span> model.<span class="fn">generateContent</span>(prompt);
+  <span class="kw">return</span> JSON.<span class="fn">parse</span>(result.response.<span class="fn">text</span>());
+}
+
+<span class="cm">// 2. Mock Interview — get first question</span>
+<span class="kw">async function</span> <span class="fn">startInterview</span>(role, type) {
+  <span class="kw">const</span> prompt = <span class="str">`Generate the first interview question for a ${role} ${type} interview.
+  Return JSON: { "question": string, "hint": string }`</span>;
+  <span class="kw">const</span> r = <span class="kw">await</span> model.<span class="fn">generateContent</span>(prompt);
+  <span class="kw">return</span> JSON.<span class="fn">parse</span>(r.response.<span class="fn">text</span>());
+}
+
+<span class="cm">// 3. Evaluate answer + generate next question</span>
+<span class="kw">async function</span> <span class="fn">evaluateAnswer</span>(question, answer, role, isLast) {
+  <span class="kw">const</span> prompt = <span class="str">`Question: "${question}"  Answer: "${answer}"
+  Evaluate and return JSON:
+  { "score": number, "feedback": string, "modelAnswer": string,
+    ${!isLast ? '"nextQuestion": string,' : ''}
+    "isComplete": ${isLast} }`</span>;
+  <span class="kw">const</span> r = <span class="kw">await</span> model.<span class="fn">generateContent</span>(prompt);
+  <span class="kw">return</span> JSON.<span class="fn">parse</span>(r.response.<span class="fn">text</span>());
+}
+
+<span class="cm">// 4. Career roadmap generation</span>
+<span class="kw">async function</span> <span class="fn">generateRoadmap</span>(targetRole, skills, availableHours) {
+  <span class="kw">const</span> prompt = <span class="str">`Create a 12-week study plan for "${targetRole}".
+  Current skills: ${skills.join(', ')}. Hours/week available: ${availableHours}.
+  Return JSON: { "weeks": [{ "week": number, "focus": string, "tasks": [string], "resources": [string] }] }`</span>;
+  <span class="kw">const</span> r = <span class="kw">await</span> model.<span class="fn">generateContent</span>(prompt);
+  <span class="kw">return</span> JSON.<span class="fn">parse</span>(r.response.<span class="fn">text</span>());
+}
+
+module.exports = { <span class="fn">analyzeResume</span>, <span class="fn">startInterview</span>, <span class="fn">evaluateAnswer</span>, <span class="fn">generateRoadmap</span> };</div>
+
+    <div class="sh">5 AI Features mapped to Gemini calls</div>
+    <div class="cards cards-3">
+      <div class="card"><div class="card-head"><div class="icon icon-green"><i class="ti ti-file-check" aria-hidden="true"></i></div><span class="card-title">ATS Scoring</span></div><div class="card-sub">analyzeResume(text, jd) → JSON with score, breakdown, suggestions. Prompt enforces JSON-only output.</div></div>
+      <div class="card"><div class="card-head"><div class="icon icon-plum"><i class="ti ti-microphone" aria-hidden="true"></i></div><span class="card-title">Mock Interview</span></div><div class="card-sub">startInterview() → first Q. evaluateAnswer() per turn → score + next Q. 10-question session.</div></div>
+      <div class="card"><div class="card-head"><div class="icon icon-teal"><i class="ti ti-map" aria-hidden="true"></i></div><span class="card-title">Roadmap</span></div><div class="card-sub">generateRoadmap(role, skills, hours) → 12-week JSON plan with tasks and resource links.</div></div>
+      <div class="card"><div class="card-head"><div class="icon icon-amber"><i class="ti ti-bulb" aria-hidden="true"></i></div><span class="card-title">Question Generator</span></div><div class="card-sub">Generate topic-specific technical or HR questions on demand. Falls back to DB seed questions.</div></div>
+      <div class="card"><div class="card-head"><div class="icon icon-navy"><i class="ti ti-chart-line" aria-hidden="true"></i></div><span class="card-title">Progress Insight</span></div><div class="card-sub">Send aggregated stats to Gemini, receive a 3-sentence plain-English progress summary for dashboard.</div></div>
+    </div>
+
+    <div class="info" style="margin-top:10px"><strong>Rate limit protection</strong>Wrap every Gemini call in try/catch. If you hit 15 RPM, return a 429 with "Please wait a moment" message. Add a simple in-memory request timestamp array to enforce max 12 calls/min from your backend side, leaving headroom.</div>
+  </div>
+
+  <!-- AUTH FLOW -->
+  <div id="s-auth" class="section">
+    <div class="sh">Token strategy</div>
+    <div class="cards cards-3">
+      <div class="card"><div class="card-head"><div class="icon icon-teal"><i class="ti ti-key" aria-hidden="true"></i></div><span class="card-title">Access Token</span><span class="badge badge-teal">15 min</span></div><div class="card-sub">Short-lived JWT. Stored in memory (Zustand). Contains userId, email, role. Sent as Bearer header.</div></div>
+      <div class="card"><div class="card-head"><div class="icon icon-navy"><i class="ti ti-refresh" aria-hidden="true"></i></div><span class="card-title">Refresh Token</span><span class="badge badge-amber">7 days</span></div><div class="card-sub">Long-lived JWT. Stored in httpOnly cookie. Hashed copy saved in User.refreshToken field in DB.</div></div>
+      <div class="card"><div class="card-head"><div class="icon icon-green"><i class="ti ti-shield-check" aria-hidden="true"></i></div><span class="card-title">authMiddleware</span><span class="badge badge-green">Every route</span></div><div class="card-sub">Extracts Bearer token, verifies with jwt.verify(), attaches decoded payload to req.user. Throws 401 on failure.</div></div>
+    </div>
+
+    <div class="sh">Register → Verify → Login flow</div>
+    <div class="flow">
+      <div class="flow-step"><div class="flow-left"><div class="flow-num">1</div><div class="flow-line"></div></div><div class="flow-body"><div class="flow-title">POST /auth/register</div><div class="flow-desc">Hash password with bcrypt (cost 10). Generate 6-digit OTP. Save user with isVerified: false. Send OTP via Nodemailer to email. Return 201.</div></div></div>
+      <div class="flow-step"><div class="flow-left"><div class="flow-num">2</div><div class="flow-line"></div></div><div class="flow-body"><div class="flow-title">POST /auth/verify-otp</div><div class="flow-desc">Compare OTP, check expiry (10 min). Set isVerified: true, clear OTP fields. Return 200.</div></div></div>
+      <div class="flow-step"><div class="flow-left"><div class="flow-num">3</div><div class="flow-line"></div></div><div class="flow-body"><div class="flow-title">POST /auth/login</div><div class="flow-desc">Find user by email. bcrypt.compare(password, hash). Generate accessToken (15 min) + refreshToken (7 days). Hash refreshToken, save to DB. Set refreshToken in httpOnly cookie. Return accessToken in body.</div></div></div>
+      <div class="flow-step"><div class="flow-left"><div class="flow-num">4</div><div class="flow-line"></div></div><div class="flow-body"><div class="flow-title">React stores accessToken in Zustand (memory only)</div><div class="flow-desc">Never localStorage. On page reload, silently call /auth/refresh using the cookie. If valid, get new accessToken. Axios request interceptor adds Authorization header automatically.</div></div></div>
+      <div class="flow-step"><div class="flow-left"><div class="flow-num">5</div><div class="flow-line"></div></div><div class="flow-body"><div class="flow-title">Axios response interceptor handles 401</div><div class="flow-desc">If API returns 401, automatically call /auth/refresh. If refresh succeeds, retry original request. If refresh fails (expired/revoked), redirect to /login. User never sees raw errors.</div></div></div>
+    </div>
+
+    <div class="sh">auth.js middleware</div>
+    <div class="code"><span class="kw">const</span> jwt = <span class="fn">require</span>(<span class="str">'jsonwebtoken'</span>);
+
+<span class="kw">const</span> <span class="fn">authMiddleware</span> = (req, res, next) => {
+  <span class="kw">const</span> authHeader = req.headers.authorization;
+  <span class="kw">if</span> (!authHeader?.startsWith(<span class="str">'Bearer '</span>))
+    <span class="kw">return</span> res.status(401).<span class="fn">json</span>({ message: <span class="str">'No token'</span> });
+
+  <span class="kw">const</span> token = authHeader.<span class="fn">split</span>(<span class="str">' '</span>)[1];
+  <span class="kw">try</span> {
+    req.user = jwt.<span class="fn">verify</span>(token, process.env.JWT_SECRET);
+    <span class="fn">next</span>();
+  } <span class="kw">catch</span> {
+    res.status(401).<span class="fn">json</span>({ message: <span class="str">'Invalid or expired token'</span> });
+  }
+};
+
+module.exports = authMiddleware;</div>
+  </div>
+
+  <!-- DEPLOYMENT -->
+  <div id="s-deploy" class="section">
+    <div class="info"><strong>Zero-cost deployment stack</strong>This combination gives you a live, public URL with HTTPS, custom domain support, and CI/CD — all completely free. Upgrade only when you get real users.</div>
+
+    <div class="sh">Deployment targets</div>
+    <div class="cards cards-3">
+      <div class="card"><div class="card-head"><div class="icon icon-teal"><i class="ti ti-brand-vercel" aria-hidden="true"></i></div><span class="card-title">Vercel</span><span class="badge badge-green">Frontend</span></div><div class="card-sub">Deploy React/Vite app. Free hobby plan. Automatic HTTPS, CDN, CI from GitHub. Set VITE_API_URL env var to Render backend URL.</div></div>
+      <div class="card"><div class="card-head"><div class="icon icon-navy"><i class="ti ti-server" aria-hidden="true"></i></div><span class="card-title">Render</span><span class="badge badge-green">Backend</span></div><div class="card-sub">Deploy Node/Express as a Web Service. Free tier: 512MB RAM, 0.1 CPU. Sleeps after 15 min inactivity — use UptimeRobot to keep awake.</div></div>
+      <div class="card"><div class="card-head"><div class="icon icon-green"><i class="ti ti-database" aria-hidden="true"></i></div><span class="card-title">MongoDB Atlas</span><span class="badge badge-green">M0 Free</span></div><div class="card-sub">M0 cluster: 512MB storage, shared RAM. Enough for 10,000+ users at MVP scale. Enable Atlas Search for company/question filtering.</div></div>
+      <div class="card"><div class="card-head"><div class="icon icon-amber"><i class="ti ti-mail" aria-hidden="true"></i></div><span class="card-title">Gmail SMTP</span><span class="badge badge-amber">Email</span></div><div class="card-sub">Use your Gmail + App Password for Nodemailer. Free 500 emails/day. Move to Resend (free 3k/month) when ready.</div></div>
+      <div class="card"><div class="card-head"><div class="icon icon-plum"><i class="ti ti-brain" aria-hidden="true"></i></div><span class="card-title">Gemini API</span><span class="badge badge-plum">AI</span></div><div class="card-sub">Google AI Studio free tier: 1M tokens/day, 15 RPM. No credit card needed. Get key at aistudio.google.com.</div></div>
+      <div class="card"><div class="card-head"><div class="icon icon-red"><i class="ti ti-code" aria-hidden="true"></i></div><span class="card-title">Judge0 (RapidAPI)</span><span class="badge badge-amber">Coding</span></div><div class="card-sub">Free tier: 50 submissions/day. Handles sandboxed code execution for Coding Practice module. No server setup needed.</div></div>
+    </div>
+
+    <div class="sh">Environment variables (.env)</div>
+    <div class="code"><span class="cm"># server/.env — never commit this file</span>
+NODE_ENV=<span class="str">development</span>
+PORT=<span class="str">5000</span>
+CLIENT_URL=<span class="str">http://localhost:5173</span>
+
+MONGO_URI=<span class="str">mongodb+srv://user:pass@cluster.mongodb.net/interviewace</span>
+
+JWT_SECRET=<span class="str">your-super-secret-256bit-key</span>
+JWT_EXPIRES_IN=<span class="str">15m</span>
+REFRESH_TOKEN_SECRET=<span class="str">different-256bit-key</span>
+REFRESH_TOKEN_EXPIRES_IN=<span class="str">7d</span>
+
+GEMINI_API_KEY=<span class="str">AIza...</span>
+
+EMAIL_HOST=<span class="str">smtp.gmail.com</span>
+EMAIL_PORT=<span class="str">587</span>
+EMAIL_USER=<span class="str">your@gmail.com</span>
+EMAIL_PASS=<span class="str">your-app-password</span>
+
+JUDGE0_API_KEY=<span class="str">your-rapidapi-key</span>
+JUDGE0_URL=<span class="str">https://judge0-ce.p.rapidapi.com</span></div>
+
+    <div class="sh">package.json scripts</div>
+    <div class="code">{
+  <span class="str">"scripts"</span>: {
+    <span class="str">"dev"</span>: <span class="str">"nodemon server.js"</span>,
+    <span class="str">"start"</span>: <span class="str">"node server.js"</span>,
+    <span class="str">"seed"</span>: <span class="str">"node utils/seed.js"</span>   <span class="cm">// seeds questions DB</span>
+  }
+}</div>
+  </div>
+
+  <!-- DEV CHECKLIST -->
+  <div id="s-checklist" class="section">
+    <div class="info"><strong>Build order for a solo developer</strong>Follow this sequence. Each phase is deployable and testable independently.</div>
+
+    <div class="sh">Phase 1 — Foundation (Week 1–2)</div>
+    <div class="check"><i class="ti ti-circle-check ci" aria-hidden="true"></i><span>Initialise Git monorepo: /client (Vite React) + /server (Express)</span></div>
+    <div class="check"><i class="ti ti-circle-check ci" aria-hidden="true"></i><span>Configure MongoDB Atlas free cluster, paste MONGO_URI into .env</span></div>
+    <div class="check"><i class="ti ti-circle-check ci" aria-hidden="true"></i><span>Build User model + auth routes (register, verify-otp, login, refresh, logout)</span></div>
+    <div class="check"><i class="ti ti-circle-check ci" aria-hidden="true"></i><span>Build authMiddleware and test all routes with Postman/Thunder Client</span></div>
+    <div class="check"><i class="ti ti-circle-check ci" aria-hidden="true"></i><span>React: Login + Register pages with React Hook Form + Zod, Zustand auth store</span></div>
+    <div class="check"><i class="ti ti-circle-check ci" aria-hidden="true"></i><span>Axios instance with request + response interceptors (token refresh logic)</span></div>
+
+    <div class="sh">Phase 2 — Core AI Features (Week 3–5)</div>
+    <div class="check"><i class="ti ti-circle-check ci" aria-hidden="true"></i><span>Integrate Gemini SDK, build geminiService.js with analyzeResume()</span></div>
+    <div class="check"><i class="ti ti-circle-check ci" aria-hidden="true"></i><span>Resume upload: Multer + pdf-parse + /resume/analyze route + Resume model</span></div>
+    <div class="check"><i class="ti ti-circle-check ci" aria-hidden="true"></i><span>React Resume page: file upload UI, ATS score card, suggestions list</span></div>
+    <div class="check"><i class="ti ti-circle-check ci" aria-hidden="true"></i><span>Mock Interview: Interview model, /interview/start + /answer + /end routes</span></div>
+    <div class="check"><i class="ti ti-circle-check ci" aria-hidden="true"></i><span>React Interview page: Q&amp;A chat UI, per-question feedback, final report view</span></div>
+    <div class="check"><i class="ti ti-circle-check ci" aria-hidden="true"></i><span>Roadmap: generateRoadmap() Gemini call + /roadmap/generate route + React page</span></div>
+
+    <div class="sh">Phase 3 — Practice & Tracking (Week 6–8)</div>
+    <div class="check"><i class="ti ti-circle-check ci" aria-hidden="true"></i><span>Seed 500+ questions into Question collection (JSON seed file → seed.js script)</span></div>
+    <div class="check"><i class="ti ti-circle-check ci" aria-hidden="true"></i><span>Questions API with pagination, filter by topic/difficulty/company</span></div>
+    <div class="check"><i class="ti ti-circle-check ci" aria-hidden="true"></i><span>Coding Practice: Monaco Editor, Judge0 API integration, problem listing</span></div>
+    <div class="check"><i class="ti ti-circle-check ci" aria-hidden="true"></i><span>Placement Tracker: Application model, CRUD routes, Kanban board React component</span></div>
+    <div class="check"><i class="ti ti-circle-check ci" aria-hidden="true"></i><span>Date Tracker: testDate + interviewDate fields, node-cron reminder emails</span></div>
+    <div class="check"><i class="ti ti-circle-check ci" aria-hidden="true"></i><span>Company Tracker: Company collection, CRUD, wishlist toggle</span></div>
+
+    <div class="sh">Phase 4 — Polish & Ship (Week 9–10)</div>
+    <div class="check"><i class="ti ti-circle-check ci" aria-hidden="true"></i><span>Analytics Dashboard: /analytics/dashboard aggregation query + Recharts visualisations</span></div>
+    <div class="check"><i class="ti ti-circle-check ci" aria-hidden="true"></i><span>Profile page: completeness score, skills editor, academic info form</span></div>
+    <div class="check"><i class="ti ti-circle-check ci" aria-hidden="true"></i><span>Admin panel: user list, role update route (isAdmin middleware)</span></div>
+    <div class="check"><i class="ti ti-circle-check ci" aria-hidden="true"></i><span>Dark / Light theme: Tailwind dark: class strategy, themeStore, toggle button</span></div>
+    <div class="check"><i class="ti ti-circle-check ci" aria-hidden="true"></i><span>Deploy backend to Render, frontend to Vercel, verify CORS and cookies</span></div>
+    <div class="check"><i class="ti ti-circle-check ci" aria-hidden="true"></i><span>Add UptimeRobot ping to prevent Render free tier sleep</span></div>
+
+    <div class="sh">Things to skip for V1 (add later)</div>
+    <div class="check"><i class="ti ti-circle-x cx" aria-hidden="true"></i><span>WebSockets / Socket.io — not needed, polling or TanStack Query refetch is fine</span></div>
+    <div class="check"><i class="ti ti-circle-x cx" aria-hidden="true"></i><span>File storage (S3/Cloudinary) — save resume raw text to MongoDB, skip storing PDF files</span></div>
+    <div class="check"><i class="ti ti-circle-x cx" aria-hidden="true"></i><span>OAuth / Google Login — email + OTP is sufficient; add OAuth in V2</span></div>
+    <div class="check"><i class="ti ti-circle-x cx" aria-hidden="true"></i><span>Redis cache — MongoDB Atlas has enough performance for &lt;1000 users</span></div>
+    <div class="check"><i class="ti ti-circle-x cx" aria-hidden="true"></i><span>Video interview / webcam — complex; AI text interview is the MVP</span></div>
+    <div class="check"><i class="ti ti-circle-x cx" aria-hidden="true"></i><span>Payment gateway / subscriptions — launch free, monetise in V2</span></div>
+    <div class="check"><i class="ti ti-circle-x cx" aria-hidden="true"></i><span>Docker / containerisation — overkill for a solo dev on Render free tier</span></div>
+
+    <div class="sh">npm install commands</div>
+    <div class="code"><span class="cm"># Backend</span>
+npm i express mongoose dotenv bcryptjs jsonwebtoken cors
+npm i multer pdf-parse @google/generative-ai nodemailer node-cron
+npm i express-validator express-async-errors
+npm i -D nodemon
+
+<span class="cm"># Frontend</span>
+npm create vite@latest client -- --template react
+npm i react-router-dom @tanstack/react-query zustand axios
+npm i react-hook-form @hookform/resolvers zod
+npm i recharts @monaco-editor/react lucide-react
+npm i tailwindcss @tailwindcss/vite</div>
+  </div>
+</div>
+
+<script>
+function show(id) {
+  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.nav button').forEach(b => b.classList.remove('active'));
+  document.getElementById('s-' + id).classList.add('active');
+  event.target.classList.add('active');
+}
+</script>
